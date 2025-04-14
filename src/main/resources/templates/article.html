@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Article - CNN</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #cc0000;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: normal;
+            color: #222;
+            margin: 10px 0;
+        }
+
+        .author-date {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .category-section {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #cc0000;
+            margin-top: 10px;
+        }
+
+        .content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .url {
+            font-size: 0.9rem;
+            color: #0066cc;
+            margin-top: 20px;
+        }
+
+        .section {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+
+        
+        .btn-back-to-search {
+            color: white;
+            text-decoration: none;
+            background-color: black;
+            padding: 0.5rem 1rem;
+            border: 2px solid black;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 1rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            display: block;
+            margin-left: auto;          
+            margin-right: 72.6%;          
+            width: auto;
+            max-width: 150px;
+            text-align: center;
+        }
+
+
+        
+        .btn-back-to-search:hover {
+            background-color: white;    
+            color: #cc0000;            
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 th:text="${article.get('Headline')}"></h1>
+        
+        <div class="author-date">
+            <span th:text="${article.get('datePublished')}"></span> | 
+            <span th:text="${article.get('Author')}"></span>
+        </div>
+        
+        <div class="category-section">
+            <span th:text="${article.get('Category')}"></span> | 
+            <span th:text="${article.get('Section')}"></span>
+        </div>
+
+        <h2 th:text="${article.get('Second Headline')}"></h2>
+        
+        <div class="content">
+            <p th:text="${article.get('Content')}"></p>
+        </div>
+        
+        <div class="url">
+            <p th:text="'URL: ' + ${article.get('url')}"></p>
+        </div>
+    </div>
+
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
+   
+    <div>
+        <a href="/" class="btn-back-to-search">Back to Search</a>
+    </div>
+</body>
+</html>
