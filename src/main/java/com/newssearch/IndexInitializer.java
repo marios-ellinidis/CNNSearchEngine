@@ -7,6 +7,7 @@ import com.newssearch.Analyzers.CustomAnalyzerNoSynonyms;
 import com.newssearch.Analyzers.CustomEnglishAnalyzer;
 import com.newssearch.filesManagement.CSVReader;
 import com.newssearch.lucene.LuceneIndexer;
+import com.newssearch.lucene.LuceneVectorIndexer;
 import com.newssearch.model.Article;
 
 import jakarta.annotation.PostConstruct;
@@ -19,6 +20,8 @@ public class IndexInitializer {
     private static final String CSV_PATH = "CNN_Articels_clean.csv";
     private static final String INDEX_DIR = "lucene_index";
     private static final String INDEX_DIR2 = "lucene_index2";
+    private static final String VECTOR_JSON_PATH = "src/main/resources/article_embeddings.json"; // <- your JSON file
+    private static final String VECTOR_INDEX_DIR = "lucene_index3";
 
     @PostConstruct
     public void init() {
@@ -33,6 +36,9 @@ public class IndexInitializer {
             Analyzer analyzer2 = new CustomAnalyzerNoSynonyms();
             LuceneIndexer indexer2 = new LuceneIndexer(INDEX_DIR2,analyzer2);
             indexer2.indexArticles(articles);
+
+            LuceneVectorIndexer vectorIndexer = new LuceneVectorIndexer();
+            vectorIndexer.indexVectors(VECTOR_JSON_PATH, VECTOR_INDEX_DIR);
 
             System.out.println("Indexing completed successfully.");
         } catch (IOException e) {

@@ -15,7 +15,7 @@ import com.newssearch.search.FieldSearch;
 import com.newssearch.search.SearchStrategy;
 import java.io.IOException;
 import java.nio.file.Paths;
-
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -98,6 +98,17 @@ public class LuceneSearcher {
         return builder.toString().trim();
     }
      
+
+    public List<Document> vectorSearch(float[] queryVector, String embeddingField, int k) throws IOException {
+        KnnVectorQuery knnQuery = new KnnVectorQuery(embeddingField, queryVector, k);
+        TopDocs topDocs = searcher.search(knnQuery, k);
+        List<Document> results = new ArrayList<>();
+        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+            results.add(searcher.doc(scoreDoc.doc));
+        }
+        return results;
+    }
+
     
 }
 
