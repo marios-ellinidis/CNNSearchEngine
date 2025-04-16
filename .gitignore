@@ -32,3 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 src/main/resources/article_embeddings.json
+
+# Ignore Lucene index directories
+lucene_index/
+lucene_index2/
+lucene_index3/
+
