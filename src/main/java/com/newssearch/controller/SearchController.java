@@ -33,7 +33,7 @@ public class SearchController {
     private final String indexDir = "lucene_index";
     private final String indexDir2 = "lucene_index2";
     private final String indexDir3 = "lucene_index3";
-    
+    private List<Document> fullResults;
 
     @GetMapping("/")
     public String home(@RequestParam(value = "error", required = false) String error, Model model) {
@@ -174,13 +174,21 @@ public class SearchController {
             LuceneSearcher searcher = new LuceneSearcher(indexDir3);
             
             List<Document> results;
-            float[] vector = QueryEmbedding.getQueryEmbedding(query);
-
-            if ("All".equals(field)) {
-                results = searcher.vectorSearchAcrossFields(vector,100);
-            } else {
-                results = searcher.vectorSearch(vector, field, 100);
+            System.out.println("page "+page);
+            if(page==1){
+                System.out.println("entered in searching");
+                float[] vector = QueryEmbedding.getQueryEmbedding(query);
+                if ("All".equals(field)) {
+                    results = searcher.vectorSearchAcrossFields(vector,100);
+                    this.fullResults =results;
+                } else {
+                    results = searcher.vectorSearch(vector, field, 100);
+                    this.fullResults = results;
+                }
+            }else{//avoid recalculating for next pages
+                results = this.fullResults;
             }
+            
             
 
             int totalResults = results.size();
@@ -201,7 +209,6 @@ public class SearchController {
             return "redirect:/?error=" + URLEncoder.encode("yoooo", StandardCharsets.UTF_8);
         }
     }
-
 
     
 
