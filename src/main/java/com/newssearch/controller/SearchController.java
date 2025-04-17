@@ -174,9 +174,7 @@ public class SearchController {
             LuceneSearcher searcher = new LuceneSearcher(indexDir3);
             
             List<Document> results;
-            System.out.println("page "+page);
             if(page==1){
-                System.out.println("entered in searching");
                 float[] vector = QueryEmbedding.getQueryEmbedding(query);
                 if ("All".equals(field)) {
                     results = searcher.vectorSearchAcrossFields(vector,100);
