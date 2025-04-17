@@ -53,8 +53,8 @@ public class IndexInitializer {
             indexer2.indexArticles(articles);
 
             LuceneVectorIndexer vectorIndexer = new LuceneVectorIndexer();
-            vectorIndexer.indexVectors(VECTOR_JSON_PATH, VECTOR_INDEX_DIR);
-
+            vectorIndexer.indexVectors(VECTOR_JSON_PATH, VECTOR_INDEX_DIR, articles);
+            
             System.out.println("Indexing completed successfully.");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -71,7 +71,6 @@ public class IndexInitializer {
         processBuilder.redirectErrorStream(true); // Merge stderr into stdout
         Process process = processBuilder.start();
 
-        // Read and print script output
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {

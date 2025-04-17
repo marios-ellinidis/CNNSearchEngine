@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.newssearch.VectorSearch.QueryEmbedding;
 import com.newssearch.filesManagement.SearchHistory;
 import com.newssearch.lucene.LuceneSearcher;
 
@@ -31,13 +32,13 @@ public class SearchController {
 
     private final String indexDir = "lucene_index";
     private final String indexDir2 = "lucene_index2";
+    private final String indexDir3 = "lucene_index3";
     
 
     @GetMapping("/")
     public String home(@RequestParam(value = "error", required = false) String error, Model model) {
         model.addAttribute("fields", Arrays.asList("Headline", "Description", "Content", "Keywords", "Second Headline", "Author", "Category", "Section"));
 
-        // Extract only the query part (before ':')
         List<String> fullHistory = SearchHistory.getRecentQueries(20);
         List<String> queryOnly = fullHistory.stream()
                 .map(line -> line.split(":")[0].trim())
@@ -53,6 +54,17 @@ public class SearchController {
         return "index";
     }
 
+    @GetMapping("/vector")
+    public String homeVector(@RequestParam(value = "error", required = false) String error, Model model) {
+        model.addAttribute("fields", Arrays.asList("Headline", "Description", "Content", "Keywords", "Second Headline", "Author", "Category", "Section"));
+
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("error", error);
+        }
+
+        return "vector_index";
+    }
+
 
 
     @RequestMapping(value = "/search", method = {RequestMethod.GET, RequestMethod.POST})
@@ -64,7 +76,7 @@ public class SearchController {
         try {
             LuceneSearcher searcher;
             if(includeSynonyms){
-                searcher = new LuceneSearcher(indexDir);
+                searcher = new LuceneSearcher(indexDir);                
             }
             else{
                 searcher = new LuceneSearcher(indexDir2);
@@ -78,12 +90,11 @@ public class SearchController {
                 
             } else {
                 results = searcher.search(query, field, includeSynonyms, false);
-              
+
             }
 
             int totalResults = results.size();
-            int 
-            start = (page - 1) * size;
+            int start = (page - 1) * size;
             int end = Math.min(start + size, totalResults);
             List<Document> pagedResults = results.subList(start, end);
 
@@ -107,6 +118,9 @@ public class SearchController {
 
         }
     }
+
+   
+
 
     @GetMapping("/results/sorted")
     public String searchSorted(@RequestParam String query, @RequestParam String field,
@@ -148,6 +162,52 @@ public class SearchController {
             return "index";
         }
     }
+
+    @RequestMapping(value = "/vectorSearch", method = {RequestMethod.GET, RequestMethod.POST})
+    public String vectorSearching(@RequestParam String query,
+                                @RequestParam String field,
+                                @RequestParam(required = false, defaultValue = "1") int page,
+                                @RequestParam(required = false, defaultValue = "10") int size,
+                                Model model) {
+        try {
+           
+            LuceneSearcher searcher = new LuceneSearcher(indexDir3);
+            
+            List<Document> results;
+            float[] vector = QueryEmbedding.getQueryEmbedding(query);
+
+            if ("All".equals(field)) {
+                results = searcher.vectorSearchAcrossFields(vector,100);
+            } else {
+                results = searcher.vectorSearch(vector, field, 100);
+            }
+            
+
+            int totalResults = results.size();
+            int start = (page - 1) * size;
+            int end = Math.min(start + size, totalResults);
+            List<Document> pagedResults = results.subList(start, end);
+
+            model.addAttribute("query", query);
+            model.addAttribute("field", field);
+            model.addAttribute("results", pagedResults); // ← only keep pagedResults here
+            model.addAttribute("currentPage", page);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("totalPages", (int) Math.ceil((double) totalResults / size));
+
+            return "vector_results";
+
+        } catch (Exception e) {
+            return "redirect:/?error=" + URLEncoder.encode("yoooo", StandardCharsets.UTF_8);
+        }
+    }
+
+
+    
+
+
+
+
 
     @GetMapping("/article/{index}")
     public String showArticle(@PathVariable String index, Model model) {

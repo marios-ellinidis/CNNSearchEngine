@@ -14,11 +14,10 @@ output_path = os.path.join(base_dir, 'article_embeddings.json')
 
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
-#csv_path = 'CNN_Articels_clean.csv'
 df = pd.read_csv(csv_path)
 
 
-df = df.dropna(subset=['Index', 'Headline', 'Description', 'Second headline', 'Article text'])
+df = df.dropna(subset=['Index','Author', 'Category', 'Section' , 'Headline', 'Description', 'Keywords', 'Article text'])
 
 
 def embed_field(text):
@@ -31,17 +30,16 @@ embeddings_data = []
 for idx, row in tqdm(df.iterrows(), total=len(df), desc="Embedding articles"):
     article_index = row['Index']
     author = str(row.get('Author', ''))
-    section = str(row.get('Section', ''))
     category = str(row.get('Category', ''))
+    section = str(row.get('Section', ''))
     headline = str(row.get('Headline', ''))
     description = str(row.get('Description', ''))
     keywords = str(row.get('Keywords', ''))
-    second_headline = str(row.get('Second headline', ''))
     article_text = str(row.get('Article text', ''))
 
     headline_emb = embed_field(headline)
     description_emb = embed_field(description)
-    second_headline_emb = embed_field(second_headline)
+    
     article_text_emb = embed_field(article_text)
 
     author_emb = embed_field(author)
@@ -51,14 +49,13 @@ for idx, row in tqdm(df.iterrows(), total=len(df), desc="Embedding articles"):
 
     embeddings_data.append({
         "Index": article_index,
-        "HeadlineEmbedding": headline_emb.tolist(),
-        "DescriptionEmbedding": description_emb.tolist(),
-        "SecondHeadlineEmbedding": second_headline_emb.tolist(),
-        "ArticleTextEmbedding": article_text_emb.tolist(),
-        "AuthorEmbedding": author_emb.tolist(),
-        "KeywordsEmbedding": keywords_emb.tolist(),
-        "SectionEmbedding": section_emb.tolist(),
-        "CategoryEmbedding": category_emb.tolist()
+        "HeadlineVector": headline_emb.tolist(),
+        "DescriptionVector": description_emb.tolist(),
+        "ContentVector": article_text_emb.tolist(),
+        "AuthorVector": author_emb.tolist(),
+        "KeywordsVector": keywords_emb.tolist(),
+        "SectionVector": section_emb.tolist(),
+        "CategoryVector": category_emb.tolist()
     })
 
 

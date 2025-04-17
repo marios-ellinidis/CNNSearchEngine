@@ -15,23 +15,23 @@ import java.util.List;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 
-    public class LuceneIndexer {
+public class LuceneIndexer {
 
-        private IndexWriter writer;
+    private IndexWriter writer;
 
-        public LuceneIndexer(String indexDir ,Analyzer analyzer) throws IOException {
-            Path path = Paths.get(indexDir);
+    public LuceneIndexer(String indexDir ,Analyzer analyzer) throws IOException {
+        Path path = Paths.get(indexDir);
 
-            if (Files.exists(path)) {
-                try {
-                    Files.walk(path)
-                        .sorted(Comparator.reverseOrder()) 
-                        .forEach(file -> {
-                            try {
-                                Files.delete(file);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+        if (Files.exists(path)) {
+            try {
+                Files.walk(path)
+                    .sorted(Comparator.reverseOrder()) // Delete files and subdirectories in reverse order
+                    .forEach(file -> {
+                        try {
+                            Files.delete(file);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 
         Directory directory = FSDirectory.open(path);
 
+        // Use the CustomEnglishAnalyzer here
        
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         writer = new IndexWriter(directory, config);

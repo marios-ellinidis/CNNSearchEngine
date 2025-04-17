@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>CNN Keyword Searching</title>
+    <title>CNN Vector Searching</title>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const titleElement = document.querySelector('title');
@@ -109,7 +109,7 @@
             color: white;
             border: none;
             padding: 0;
-            width: 200px;
+            width: 210px;
             height: 35px;
             font-size: 1rem;
             letter-spacing: 4px;
@@ -150,44 +150,34 @@
 <body>
     <h1 id="page-title">CNN Articles Search</h1>
 
-    
-    <form action="/search" method="post" style="display: inline;">
+    <form action="/vectorSearch" method="post">
         <label for="query">Search Query</label>
         <input type="text" id="query" name="query" required>
-    
+
         <label for="field">Search In</label>
         <select id="field" name="field">
             <option value="All">All Fields</option>
-            <option value="Headline">Headline</option>
-            <option value="Description">Description</option>
-            <option value="Content">Content</option>
-            <option value="Keywords">Keywords</option>
-            <option value="Second Headline">Second Headline</option>
-            <option value="Author">Author</option>
-            <option value="Category">Category</option>
-            <option value="Section">Section</option>
-            <option value="datePublished">Date Published (yyyy-MM-dd)</option>
+            <option value="HeadlineVector">Headline</option>
+            <option value="DescriptionVector">Description</option>
+            <option value="ContentVector">Content</option>
+            <option value="KeywordsVector">Keywords</option>
+            <option value="AuthorVector">Author</option>
+            <option value="CategoryVector">Category</option>
+            <option value="SectionVector">Section</option>
         </select>
-    
-        <label class="custom-checkbox">
-            <input type="checkbox" name="includeSynonyms" id="includeSynonyms">
-            <span class="checkmark"></span>
-            Include Synonyms
-        </label>
-    
-        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-            <button type="submit">Search</button>
-        </div>
+
+        
+
+        <button type="submit">Search</button>
     </form>
-    
     <!-- Now place this OUTSIDE the above form but styled next to it -->
-    <form action="/vector" method="get" style="display: inline;">
+    <form action="/" method="get" style="display: inline;">
         <button type="submit" style="
             background-color: black;
             color: white;
             border: none;
             padding: 0;
-            width: 200px;
+            width: 210px;
             height: 35px;
             font-size: 1rem;
             letter-spacing: 4px;
@@ -195,26 +185,14 @@
             cursor: pointer;
             justify-content: center;
             margin-left: 0rem;
-            margin-top: 0rem;
+            margin-top: 1rem;
         ">
-            Switch to Vector Searching
+            Switch to Keyword Searching
         </button>
     </form>
-    
-    
 
     <div class="error" th:if="${error}" th:text="${error}"></div>
 
-    <div style="margin-top: 3rem;">
-        <h2 style="color: #cc0000;">Recent Searches</h2>
-        <ul th:if="${history}" style="list-style-type: none; padding-left: 0;">
-            <li th:each="item, iterStat : ${history}"
-                th:text="${item}"
-                th:attr="style=${'--i:' + (iterStat.index + 1)}"
-                class="search-history-item">
-            </li>
-        </ul>
-        <p th:if="${#lists.isEmpty(history)}">No recent searches.</p>
-    </div>
+    
 </body>
 </html>

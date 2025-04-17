@@ -16,12 +16,15 @@ import com.newssearch.search.SearchStrategy;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class LuceneSearcher {
     private final IndexSearcher searcher;
     private Analyzer analyzer;
+    private static final String VECTOR_INDEX_DIR = "lucene_index3";
 
     public LuceneSearcher(String indexDir) throws IOException {
         Directory dir = FSDirectory.open(Paths.get(indexDir));
@@ -99,16 +102,61 @@ public class LuceneSearcher {
     }
      
 
-    public List<Document> vectorSearch(float[] queryVector, String embeddingField, int k) throws IOException {
+    public List<Document> vectorSearch(float[] queryVector, String embeddingField, int k) throws Exception {
+       
         KnnVectorQuery knnQuery = new KnnVectorQuery(embeddingField, queryVector, k);
         TopDocs topDocs = searcher.search(knnQuery, k);
         List<Document> results = new ArrayList<>();
+       
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-            results.add(searcher.doc(scoreDoc.doc));
+            Document doc = searcher.doc(scoreDoc.doc);
+            results.add(doc);
         }
+        
         return results;
     }
 
+    public List<Document> vectorSearchAcrossFields(float[] queryVector, int k) throws IOException {
+        Map<String, Integer> fieldResultLimits = Map.of(
+            "ContentVector", 40,
+            "HeadlineVector", 20,
+            "DescriptionVector", 20,
+            "KeywordsVector", 5,
+            "AuthorVector", 5,
+            "CategoryVector", 5,
+            "SectionVector", 5
+        );
+    
+        Map<Integer, Float> docScoreMap = new HashMap<>();
+    
+        for (Map.Entry<String, Integer> entry : fieldResultLimits.entrySet()) {
+            String field = entry.getKey();
+            int limit = entry.getValue();
+    
+            KnnVectorQuery knnQuery = new KnnVectorQuery(field, queryVector, limit);
+            TopDocs topDocs = searcher.search(knnQuery, limit);
+    
+            for (ScoreDoc sd : topDocs.scoreDocs) {
+                // Accumulate scores across fields
+                docScoreMap.merge(sd.doc, sd.score, Float::sum);  // or Math::max depending on strategy
+            }
+        }
+    
+        // Sort by score descending and limit to top `k` total
+        List<Map.Entry<Integer, Float>> sortedDocs = docScoreMap.entrySet().stream()
+            .sorted((a, b) -> Float.compare(b.getValue(), a.getValue()))
+            .limit(k)
+            .toList();
+    
+        List<Document> results = new ArrayList<>();
+        for (Map.Entry<Integer, Float> entry : sortedDocs) {
+            results.add(searcher.doc(entry.getKey()));
+        }
+    
+        return results;
+    }
+    
+    
     
 }
 

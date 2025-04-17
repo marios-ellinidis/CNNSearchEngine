@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results - CNN Articles</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const titleElement = document.querySelector('title');
+            
+           
+            const cnnColor = "#cc0000";  
+            let titleText = titleElement.innerHTML;
+
+            
+            titleText = titleText.replace("CNN", `<span style="color:${cnnColor};">CNN</span>`);
+
+            
+            const titleInPage = document.getElementById('page-title');
+            titleInPage.innerHTML = titleText;  
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white;
+            color: black;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: black;
+        }
+
+        .result {
+            padding: 1rem 0;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #ccc;
+            /* Animation styles */
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .headline {
+            color: #cc0000;
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .description {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        mark {
+            font-weight: bold !important;
+            text-decoration: underline !important;
+            color: black !important;
+            background-color: transparent !important;
+        }
+
+        .error {
+            color: red;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.25rem 0.75rem;
+            background-color: transparent;
+            border: 2px solid #cc0000;
+            border-radius: 3px;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .btn:hover {
+            background-color: #cc0000;
+            color: white;
+        }
+
+        .btn-red {
+            color: white;
+            background-color: #cc0000;
+            border: 2px solid #cc0000;
+        }
+
+        .btn-red:hover {
+            background-color: white;
+            color: #cc0000;
+        }
+
+        .btn-back-to-search {
+            color: white;
+            text-decoration: none;
+            background-color: black;
+            padding: 0.5rem 1rem;
+            border: 2px solid black;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 1rem;
+            margin-top: 2rem;
+            display: block;
+            width: auto;
+            max-width: 150px;
+            text-align: center;
+        }
+
+        .btn-back-to-search:hover {
+            background-color: white;
+            color: black;
+        }
+
+        .boosted-indicator {
+            display: inline-flex;
+            align-items: center;
+            color: black; 
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            margin-bottom: 0.5rem;
+            margin-right: 1rem;
+            background-color: transparent;
+        }
+
+        .boosted-icon {
+            font-size: 1.2rem; 
+            margin-right: 0.3rem;
+            color: black;  
+        }
+
+        .boosted-text {
+            font-size: 1rem;
+        }
+
+       
+        .boosted-indicator {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+       
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        
+        .result:nth-child(1)  { animation-delay: 0.12s; }
+        .result:nth-child(2)  { animation-delay: 0.24s; }
+        .result:nth-child(3)  { animation-delay: 0.36s; }
+        .result:nth-child(4)  { animation-delay: 0.48s; }
+        .result:nth-child(5)  { animation-delay: 0.6s; }
+        .result:nth-child(6)  { animation-delay: 0.72s; }
+        .result:nth-child(7)  { animation-delay: 0.84s; }
+        .result:nth-child(8)  { animation-delay: 0.96s; }
+        .result:nth-child(9)  { animation-delay: 1.08s; }
+        .result:nth-child(10) { animation-delay: 1.20s; }
+
+    </style>
+</head>
+
+<body>
+    <h1 id="page-title">Search Results - CNN Articles</h1>
+    
+    
+
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+
+    <div th:each="doc, iterStat : ${results}" class="result">
+       
+       
+        <div class="headline">
+            <span th:if="${field == 'Headline' and doc.get('highlighted') != null}" th:utext="${doc.get('highlighted')}"></span>
+            <span th:if="${field != 'Headline'}" th:text="${doc.get('Headline')}"></span>
+        </div>
+    
+        <div class="description">
+            <span th:text="${doc.get('Description')}"></span>
+        </div>
+       
+        <div>
+            <a th:href="@{/article/{index}(index=${doc.get('index')})}" class="btn">Show Article</a>
+        </div>
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <div th:if="${totalPages > 1}" class="pagination">
+            <a th:if="${currentPage > 1}"
+               th:href="@{/vectorSearch(query=${query}, field=${field}, includeSynonyms=${includeSynonyms}, page=${currentPage - 1}, size=${pageSize})}"
+               class="btn">Previous</a>
+    
+            <span th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages}"></span>
+    
+            <a th:if="${currentPage < totalPages}"
+               th:href="@{/vectorSearch(query=${query}, field=${field}, includeSynonyms=${includeSynonyms}, page=${currentPage + 1}, size=${pageSize})}"
+               class="btn">Next</a>
+        </div>
+    </div>    
+    
+
+   
+    <div>
+        <a href="/vector" class="btn-back-to-search">Back to Search</a>
+    </div>
+
+</body>
+</html>

@@ -100,7 +100,7 @@
 </head>
 <body>
     <div class="container">
-        <h1 th:text="${article.get('Headline')}"></h1>
+        <h1 th:text="${article.get('Second Headline')}"></h1>
         
         <div class="author-date">
             <span th:text="${article.get('datePublished')}"></span> | 
@@ -112,7 +112,7 @@
             <span th:text="${article.get('Section')}"></span>
         </div>
 
-        <h2 th:text="${article.get('Second Headline')}"></h2>
+        <h2 th:text="${article.get('Description')}"></h2>
         
         <div class="content">
             <p th:text="${article.get('Content')}"></p>
@@ -121,10 +121,6 @@
         <div class="url">
             <p th:text="'URL: ' + ${article.get('url')}"></p>
         </div>
-    </div>
-
-    <div th:if="${error}" class="error-message">
-        <p th:text="${error}"></p>
     </div>
 
    
