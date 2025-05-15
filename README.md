@@ -49,6 +49,19 @@ https://www.kaggle.com/datasets/dfydata/wordnet-dictionary-thesaurus-files-in-cs
 
 
 
+Δομή κώδικα:
+1. η main βρίσκεται στην κλάση CnnArticlesSearchEngineApplication
+2. Η κλάση CnnArticlesSearchEngineApplication καλεί IndexInitializer για να  διαβαστεί το CSV αρχείο , να γίνουν όλα τα indexing της lucene και να δημιουργηθούν τα embeddings των άθρων για το 3ο μέρος της άσκησης.
+3. Το αρχείο csv με τα άρθρα του cnn γίνεται με την βοήθεια της κλάσης  CSVReader που υπάρχει στο package filesManagement
+4. Έχω 2 ειδών analyzers ένα για αναζήτηση με συνώνυμα και ένα χωρίς , ανάλογα τι διάλεξε ο χρήστης. Και τα 2 υπάρχουν στο package Analyzers. Και στους 2 γίνεται απαλοιφή stop words, stemming lower casing κλ
+5. Στο package lucene θα βρείτε τόσο την κλάση LuceneIndexer όπου αναγράφονται τα πεδία για keyword searching , όσο και το LuceneVectorIndexer που αφορά την διανυσματική αναζήτηση
+6. Η αναζήτηση γίνεται μέσω της κλάσης LuceneSearcher
+7. Για keyword searching η LuceneSearcher συνεργάζεται μέζω του interface SearchStrategy. Yπάρχουν 2 ειδών στρατηγικές, αυτή για αναζήτηση σε συγκεκριμένο πεδίο ή για όλα τα πεδία , οι κλάσεις τους μπορούν να βρεθούν στο package search
+8. Η διανυσματική αναζήτηση απο την άλλη υλοποιείται μέσα στην LuceneSearcher και οχι σε ξεχωριστή κλάση
+9. Το front end του κώδικα υλοποιείται στην κλάση SearchController που βρίσκεται στο package controller και συνεργάζεται με τα thymeleaf html που βρίσκονται στο src/main/resources/templates/article.html
+10. Το αρχείο search_history.txt λειτουργεί ως βάση δεδομένων και κρατάει ένα ιστορικό των αναζητήσεων σας αναγράφοντας το query και τα id των αποτελεσμάτων των 5 πρώτων άρθρων, αυτό το αρχείο χρησιμοποείται μετά για την ταξινόμηση των αποτελεσμάτων.
+11. Στο lucene_index φάκελο αφορά το indexing της lucene για άρθρα με συνώνυμα , ενω στο lucene_index2 για άρθρα χωρίς συνώνυμα. Ο φάκελος lucene_index3 αφορά το indexing για διανυσματική αναζήτηση.
+12. Στον φάκελο lib έχω κατεβάσει και προσθέσει ένα dependancy για διανυσματική αναζήτηση που δεν υπήρχε στο maven repository οπότε υπήρχαν προβλήματα συμβατότητας , τα υπόλοιπα dependancies βρίσκονται κανονικά στο pom.xml
 
 
 
