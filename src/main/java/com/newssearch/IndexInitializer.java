@@ -64,24 +64,24 @@ public class IndexInitializer {
 
     private void runPythonScript() throws IOException, InterruptedException {
         // Make sure to use the full absolute path to your Python script
-        Path scriptPath = Paths.get("src/main/resources/article_embedding.py").toAbsolutePath();
-        System.out.println("Running script at: " + scriptPath);
+        //Path scriptPath = Paths.get("src/main/resources/article_embedding.py").toAbsolutePath();
+       //System.out.println("Running script at: " + scriptPath);
 
-        ProcessBuilder processBuilder = new ProcessBuilder("python", scriptPath.toString());
-        processBuilder.redirectErrorStream(true); // Merge stderr into stdout
-        Process process = processBuilder.start();
+       // ProcessBuilder processBuilder = new ProcessBuilder("python", scriptPath.toString());
+        //processBuilder.redirectErrorStream(true); // Merge stderr into stdout
+        //Process process = processBuilder.start();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("[PYTHON] " + line);
-            }
-        }
+        //try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+          //  String line;
+           // while ((line = reader.readLine()) != null) {
+             //   System.out.println("[PYTHON] " + line);
+            //}
+        //}
 
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new RuntimeException("Python script exited with code " + exitCode);
-        }
+        //int exitCode = process.waitFor();
+        //if (exitCode != 0) {
+          //  throw new RuntimeException("Python script exited with code " + exitCode);
+        ///}
 
     }
 }
