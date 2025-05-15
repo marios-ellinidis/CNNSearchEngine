@@ -31,8 +31,8 @@ Xρήσιμες πληροφορίες:
 Τα συνώνυμα της Wordnet τα βρήκα σε csv αρχείο στο παρακάτω link
 https://www.kaggle.com/datasets/dfydata/wordnet-dictionary-thesaurus-files-in-csv-format.
 
-Να σημειωθεί ότι έχω τρέξει ενα python script έτσι ώστε να μείωσω την διάσταση των συνωνύμων μόνο για λέξεις που εμπεριέχονται στα CNN  άρθρα, αλλα και πάλι το αρχείο είναι αρκετά μεγάλο δεν μπόρεσα να το ανεβάσω στο github
-13. 
+Να σημειωθεί ότι έχω τρέξει ενα python script έτσι ώστε να μείωσω την διάσταση των συνωνύμων μόνο για λέξεις που εμπεριέχονται στα CNN  άρθρα, αλλα και πάλι το αρχείο είναι αρκετά μεγάλο δεν μπόρεσα να το ανεβάσω στο github. 
+Το python script βρίσκεται στο παρακάτω directory: src/main/resources/python cnn_synonym_filter.py.ipynb
 
 
 Για  Vector Searching:
