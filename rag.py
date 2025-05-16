@@ -59,28 +59,26 @@ else:
 
     embeddings = np.array(embeddings).astype('float32')
 
-    # Save embeddings to a .npy file
+    
     np.save(embedding_file, embeddings)
     print("Embeddings saved to 'embeddings.npy'.")
 
 
-print("Initializing FAISS index...")
-dimension = embeddings.shape[1]  # This is the size of each embedding vector
-index = faiss.IndexFlatL2(dimension)  # Use L2 (Euclidean) distance
-print("Adding embeddings to FAISS index...")
+dimension = embeddings.shape[1]  
+index = faiss.IndexFlatL2(dimension)  
 index.add(embeddings) 
 
 
 while True:
     query = input("Enter your query: ")
+
+    k = int(input("How many results? "))
     query_embedding = model.encode(query).astype('float32')
 
+    D, I = index.search(np.array([query_embedding]), k=k)
 
-    D, I = index.search(np.array([query_embedding]), k=5)  # Top 5 nearest neighbors
-
-    #Display the results
-    print("\nTop 5 nearest neighbors:")
-    for i in range(5):
+    print(f"\nTop {len(I[0])} relevant chunks:")
+    for i in range(len(I[0])):
         print(f"\n--- Result {i+1} ---")
         print("Document Metadata:", chunked_documents[I[0][i]].metadata)
         print("Content:", chunked_documents[I[0][i]].page_content[:200], "...")
@@ -119,10 +117,10 @@ while True:
         """
     ]
 
-    # Randomly select a prompt template
+   
     selected_template = random.choice(prompt_templates)
 
-    # Extract structure parts (before {query}, between {query} and {context})
+   
     before_query, after_query = selected_template.split('{query}')
     between_query_context, _ = after_query.split('{context}')
 
@@ -130,7 +128,7 @@ while True:
 
     formatted_prompt = selected_template.format(query=query, context=context)
 
-    # Function to send prompt to Ollama
+    
     def query_ollama(prompt, model="llama3.2:1b"):
         response = requests.post(
             "http://localhost:11434/api/generate",
