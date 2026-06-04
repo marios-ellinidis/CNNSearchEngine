@@ -38,3 +38,14 @@ lucene_index/
 lucene_index2/
 lucene_index3/
 
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Python cache
+__pycache__/
+*.pyc
