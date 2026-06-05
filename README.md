@@ -18,7 +18,7 @@ Everything is tied together with a clean, interactive Web UI for seamless queryi
 * **Dynamic Synonym Toggle:** A UI checkbox allows users to enable or disable structural word alternatives on the fly. 
 * **Dynamic Highlighting:** Matched search terms are automatically highlighted and bolded within the result snippets for quick visual scanning.
 * **Result Sorting:** Users can instantly toggle their result view between algorithmic relevance (Lucene score) and alphabetical sorting.
-* **Personalized "Trending" Mechanics & UI Badges:** The system automatically logs recent queries and their top 5 associated article IDs into a local cache (`search-history.txt`). If these historically highly-ranked articles surface in future searches, their relevance scores are artificially boosted to pin them to the top of the page. These items are distinctively marked in the UI with a **"Popular Result"** badge and chart-line icon.
+* **Smart "Trending" & Behavioral Re-ranking:** Just like top-tier commercial platforms, this engine anticipates what you are looking for. It securely tracks recent search interactions to automatically identify trending content. When high-interest articles surface in future queries, they receive an algorithmic boost to the top of the page, complete with a distinct "Popular Result" badge—ensuring the most relevant news is always front and center.
 * **Recent Search History:** The homepage dynamically reads the local history state to display a staggered, animated list of the user's most recent search queries.
 
 ---
