@@ -12,13 +12,14 @@ Everything is tied together with a clean, interactive Web UI for seamless queryi
 
 * **Interactive Web Interface:** A custom frontend built with HTML5, CSS3, and Spring Boot Thymeleaf. It features clean styling (mirroring CNN's branding), smooth staggered result animations, pagination (10 results per page), and a dedicated "Show Article" view to read full documents.
 * **Granular Multi-Field Filtering:** Users can search comprehensively across the whole document or isolate queries to explicit metadata slices: *Headline, Second Headline, Content, Description, Keywords, Author, Category, Section, and Date Published*.
-* **Traditional Keyword Search (BM25):** Standard Lucene relevance scoring with fuzzy-matching capabilities (handling user typos up to an edit distance of 1).
-* **Dynamic Synonym Toggle:** A UI checkbox allows users to enable or disable structural word alternatives on the fly. 
+* **Traditional Keyword Search (BM25):** Standard Lucene relevance scoring with fuzzy-matching capabilities (handling minor user typos up to an edit distance of 1).
 * **Semantic Vector Search:** Users can switch to a dedicated Vector Search mode powered by the HuggingFace `all-MiniLM-L6-v2` transformer model. Instead of exact word matches, the engine evaluates dense vector dimensions to find articles based on *context and meaning*. 
   * *Note: Vector queries take slightly longer to yield results, as the backend dynamically boots a Python sub-process to generate a normalized embedding for the user's query in real-time.*
+* **Dynamic Synonym Toggle:** A UI checkbox allows users to enable or disable structural word alternatives on the fly. 
 * **Dynamic Highlighting:** Matched search terms are automatically highlighted and bolded within the result snippets for quick visual scanning.
 * **Result Sorting:** Users can instantly toggle their result view between algorithmic relevance (Lucene score) and alphabetical sorting.
-* **Personalized "Trending" Mechanics:** The system maintains a local search history audit log. Historically clicked or popular documents receive a dynamic relevance boost and are tagged with a visual "Popular Result" badge in the UI.
+* **Smart "Trending" & Behavioral Re-ranking:** Just like top-tier commercial platforms, this engine anticipates what you are looking for. It securely tracks recent search interactions to automatically identify trending content. When high-interest articles surface in future queries, they receive an algorithmic boost to the top of the page, complete with a distinct "Popular Result" badge—ensuring the most relevant news is always front and center.
+* **Recent Search History:** The homepage dynamically reads the local history state to display a staggered, animated list of the user's most recent search queries.
 
 ---
 
@@ -55,7 +56,10 @@ Everything is tied together with a clean, interactive Web UI for seamless queryi
 ### Step-by-Step Execution
 
 1. **Clone the repository** locally and navigate to the project root directory.
-2. **Data Setup:** Ensure your dataset (`CNN_Articels_clean.csv`) is placed inside the root or `src/main/resources/` directory as required by the configuration.
-3. **Install Python Dependencies:** Before running the application, install the required machine learning libraries. Open your terminal in the project root and run:
-   ```bash
-   pip install -r requirements.txt
+2. **Data Setup:** Ensure your dataset (`CNN_Articels_clean.csv`) is present in the `src/main/resources/` directory.
+3. **Install Python Dependencies:** Before running the application, install the required machine learning libraries. Open your terminal in the project root and run: `pip install -r requirements.txt`
+4. **Launch the Application:** Build and run the Spring Boot entrypoint: `CnnArticlesSearchEngineApplication.java`.
+5. **First Run Initialization:** The system will detect if the local vector cache (`article_embeddings.json`) is missing and automatically execute the Python transformer script to generate it. 
+   * *Note: The first run will download the HuggingFace model and process the CSV, which may take a few minutes depending on your hardware.*
+6. **Monitor the logs:** Watch the Java console. Once the system finishes building the underlying physical Lucene directories, it will log: `"Indexing completed successfully."`
+7. **Access the Application:** Open your preferred local web browser and head directly to the UI: **`http://localhost:8080`**
