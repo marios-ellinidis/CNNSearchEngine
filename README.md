@@ -1,166 +1,61 @@
-Xρήσιμες πληροφορίες:
-1. Το πρόγραμμα είναι springboot project η main βρίσκεται στην κλάση CnnArticlesSearchEngineApplication
+# 📰 CNN News Article Search Engine
 
-2. Μόλις το τρέξετε αρχικά θα τρέξει ένα python script όπου δημιουργεί emeddings για τα άρθρα με το μοντέλο all-MiniLM-L6-v2 (είναι για το 3ο μέρος της άσκησης για διανυσματική αναζήτηση), χρειάζεται λίγο χρόνο ωστόσο θα χρειαστεί να το τρέξετε μόνο μια φορά τοπικά, αν αποθηκευτούν τα emeddings μια φορα τοπικά το script αυτο δεν θα ξανατρέξει για τις υπόλοιπες μελλοντικές φορές που θα τρέξετε το πρόγραμμα. 
+**An advanced, multi-field text and semantic search engine built with Java, Spring Boot, and Apache Lucene.**
 
-3. Μόλις δημιουργηθούν τα embeddings χρείαζεται λίγος χρόνος για να διαβαστεί το csv αρχείο και να γίνει το indexing της lucene, μπορεί να πάρει έως 1 λεπτό ανάλογα τον υπολογιστή
+This project implements a highly optimized search and retrieval system for CNN news articles. It bridges traditional information retrieval with advanced natural language processing (NLP) pipelines, typo tolerance, custom synonym graphs, and field-level dense vector embeddings for highly accurate semantic search. 
 
-4. Mόλις δείτε στο terminal το print: "Indexing completed successfully." Τότε μπορείτε να ανοίξετε έναν browser στο localhost:8080 και είστε έτοιμοι.
+Everything is tied together with a clean, interactive Web UI for seamless querying and document reading.
 
+---
 
+## ✨ Search Capabilities & Web UI
 
+* **Interactive Web Interface:** A custom frontend built with HTML5, CSS3, and Spring Boot Thymeleaf. It features clean styling (mirroring CNN's branding), smooth staggered result animations, pagination (10 results per page), and a dedicated "Show Article" view to read full documents.
+* **Granular Multi-Field Filtering:** Users can search comprehensively across the whole document or isolate queries to explicit metadata slices: *Headline, Second Headline, Content, Description, Keywords, Author, Category, Section, and Date Published*.
+* **Traditional Keyword Search (BM25):** Standard Lucene relevance scoring with fuzzy-matching capabilities (handling user typos up to an edit distance of 1).
+* **Dynamic Synonym Toggle:** A UI checkbox allows users to enable or disable structural word alternatives on the fly. 
+* **Semantic Vector Search:** Users can switch to a dedicated Vector Search mode powered by the HuggingFace `all-MiniLM-L6-v2` transformer model. Instead of exact word matches, the engine evaluates dense vector dimensions to find articles based on *context and meaning*. 
+  * *Note: Vector queries take slightly longer to yield results, as the backend dynamically boots a Python sub-process to generate a normalized embedding for the user's query in real-time.*
+* **Dynamic Highlighting:** Matched search terms are automatically highlighted and bolded within the result snippets for quick visual scanning.
+* **Result Sorting:** Users can instantly toggle their result view between algorithmic relevance (Lucene score) and alphabetical sorting.
+* **Personalized "Trending" Mechanics:** The system maintains a local search history audit log. Historically clicked or popular documents receive a dynamic relevance boost and are tagged with a visual "Popular Result" badge in the UI.
 
+---
 
-Σχετικά με την λειτουργικότητα του συστήματος:
+## 🧠 Architecture & Engineering Highlights
 
-Το default searching ειναι το keyword searching , για αλλαγή σε vector searching που αναφέρεται στο 3ο μέρος της άσκησης υπάρχει κουμπί.
+* **Storage-Over-Compute Synonym Strategy:** To prevent runtime query latency when users toggle synonyms, the system pre-builds separate physical inverted indexes (with and without a `SynonymGraphFilter`) and dynamically routes the query to the correct index.
+* **Isolated Multi-Index Layout:** The system allocates physical index records into 3 dedicated index environments to guarantee maximum performance and clean query routing:
+  1. `lucene_index`: Full-text inverted tokens with synonym structural expansions.
+  2. `lucene_index2`: Exact text tokens for precise matching requirements.
+  3. `lucene_index3`: Deep vector indices containing native `KnnVectorField` dense representations across 7 distinct metadata fields.
+* **Smart Bootstrapping:** To avoid compute-heavy bottlenecks during deployment, the `IndexInitializer` validates the existence of the vectorized dataset (`article_embeddings.json`). If the cache is present, it bypasses the massive Python initialization script completely, ensuring near-instant Spring Boot startup cycles.
+* **Custom Dictionary Pruning:** Includes a decoupled Python script that maps the massive WordNet vocabulary database against the real vocabulary present inside the CNN dataset. This filters out irrelevant noise and maintains an optimized, highly-performant synonym footprint.
+* **Strategy Design Pattern:** Embraces decoupled software architectures by using the Strategy Pattern to swap algorithmic runtime behaviors cleanly depending on single-field or multi-field query actions.
 
-Για  Κeyword Searching:
+---
 
-1. Γράψτε την ερώτηση σας στο πλαίσιο query searching
-2. Διαλέξτε σε ποιο πεδίο θέλετε να γίνει η αναζήτηση
-3. Διαλέξτε αν θέλετε τα αποτέλεσματα να περιελαμβάνουν συνώνυμα ή οχι
-4. πατήσε το κουμπί Searh
-5. Μόλις πατήσετε το κουμπί search θα λάβετε αποτελέσματα ταξινομημένα με βάση τo  score τους , τα άρθρα τα οποία αποτελούσαν αποτέλεσμα προήγουμενων αναζητήσεων ταξινομούνται πρώτα , αναγράφεται πάνω τους η λέξη trending. Υπάρχει κουμπί sort alphabetically σε περίπτωση που θέλετε να ταξινομηθούν ανα 10
-6. Τα αποτελέσματα της αναζήτησης εμφανίζονται ανα 10 στο τέλος της σελίδας πατήστε next για να σας εμφανιστούν τα επόμενα 10 άρθρα.
-7. Για να εμφανίσετε κάποιο αρχείο πατήστε το κουμπί show article
-8. Το σύστημα περιελαμβάνει επίσης διόρθωση τυπογραφικών λαθών έως ένα όμως. Για περισσότερα γράμματα παρατήρησα ότι δεν δίνει πολύ ακριβές απαντήσεις.
-9. Οσων αφορά την αναζήτηση ημερομηνιών η σύνταξη πρέπει να είναι όπως αναγράφεται στο πλαίσιο (yyyy-MM-dd) π.χ. 2021-07-15. Σε αντίθετη περίπτωση ίσως και να μην δουλέψει
-10. Όσων αφορά τα συνώνυμα γενικά δεν είναι και η πιο αξιόπιστη αναζήτηση  ,είναι συνώνυμα για κάθε λέξη  που αναφέρονται στο Wordnet.
+## 🛠️ Tech Stack
 
-Τα συνώνυμα της Wordnet τα βρήκα σε csv αρχείο στο παρακάτω link
-https://www.kaggle.com/datasets/dfydata/wordnet-dictionary-thesaurus-files-in-csv-format.
+* **Backend Core:** Java 17+, Spring Boot
+* **Search Engine:** Apache Lucene (v9+ native Vector API support)
+* **Machine Learning / NLP:** Python 3.x, SentenceTransformers (`all-MiniLM-L6-v2`)
+* **Serialization & Parsing:** Jackson (`ObjectMapper`), Apache Commons CSV
+* **Frontend UI Engine:** HTML5, CSS3, Thymeleaf Server-Side Rendering
 
-Να σημειωθεί ότι έχω τρέξει ενα python script έτσι ώστε να μείωσω την διάσταση των συνωνύμων μόνο για λέξεις που εμπεριέχονται στα CNN  άρθρα, αλλα και πάλι το αρχείο είναι αρκετά μεγάλο δεν μπόρεσα να το ανεβάσω στο github. 
-Το python script βρίσκεται στο παρακάτω directory: src/main/resources/python cnn_synonym_filter.py.ipynb
+---
 
+## 🚀 Local Deployment Guide
 
-Για  Vector Searching:
+### Prerequisites
+* Java Development Kit (JDK 17 or higher)
+* Apache Maven
+* Python 3.x 
 
-1. Γράψτε την ερώτηση σας στο πλαίσιο query searching
-2. Διαλέξτε σε ποιο πεδίο θέλετε να γίνει η αναζήτηση
-3.  πατήσε το κουμπί Searh
-4.  Η αναζήτηση αυτή παίρνει λίγο παραπάνω χρόνο για να εμφανίσει αποτελέσματα με σκόπο να υπάρχει πιο smooth transition για εναλλαγές σελίδων αποτελεσμάτων μετέπειτα
-5.  Υπάρχει κουμπί στην αρχική σελίδα για επιστροφή πίσω στο Keyword Searching
+### Step-by-Step Execution
 
-
-
-
-
-
-
-Δομή κώδικα:
-1. η main βρίσκεται στην κλάση CnnArticlesSearchEngineApplication
-2. Η κλάση CnnArticlesSearchEngineApplication καλεί IndexInitializer για να  διαβαστεί το CSV αρχείο , να γίνουν όλα τα indexing της lucene και να δημιουργηθούν τα embeddings των άθρων για το 3ο μέρος της άσκησης.
-3. Το αρχείο csv με τα άρθρα του cnn γίνεται με την βοήθεια της κλάσης  CSVReader που υπάρχει στο package filesManagement
-4. Έχω 2 ειδών analyzers ένα για αναζήτηση με συνώνυμα και ένα χωρίς , ανάλογα τι διάλεξε ο χρήστης. Και τα 2 υπάρχουν στο package Analyzers. Και στους 2 γίνεται απαλοιφή stop words, stemming lower casing κλ
-5. Στο package lucene θα βρείτε τόσο την κλάση LuceneIndexer όπου αναγράφονται τα πεδία για keyword searching , όσο και το LuceneVectorIndexer που αφορά την διανυσματική αναζήτηση
-6. Η αναζήτηση γίνεται μέσω της κλάσης LuceneSearcher
-7. Για keyword searching η LuceneSearcher συνεργάζεται μέζω του interface SearchStrategy. Yπάρχουν 2 ειδών στρατηγικές, αυτή για αναζήτηση σε συγκεκριμένο πεδίο ή για όλα τα πεδία , οι κλάσεις τους μπορούν να βρεθούν στο package search
-8. Η διανυσματική αναζήτηση απο την άλλη υλοποιείται μέσα στην LuceneSearcher και οχι σε ξεχωριστή κλάση
-9. Το front end του κώδικα υλοποιείται στην κλάση SearchController που βρίσκεται στο package controller και συνεργάζεται με τα thymeleaf html που βρίσκονται στο src/main/resources/templates/article.html
-10. Το αρχείο search_history.txt λειτουργεί ως βάση δεδομένων και κρατάει ένα ιστορικό των αναζητήσεων σας αναγράφοντας το query και τα id των αποτελεσμάτων των 5 πρώτων άρθρων, αυτό το αρχείο χρησιμοποείται μετά για την ταξινόμηση των αποτελεσμάτων.
-11. Στο lucene_index φάκελο αφορά το indexing της lucene για άρθρα με συνώνυμα , ενω στο lucene_index2 για άρθρα χωρίς συνώνυμα. Ο φάκελος lucene_index3 αφορά το indexing για διανυσματική αναζήτηση.
-12. Στον φάκελο lib έχω κατεβάσει και προσθέσει ένα dependancy για διανυσματική αναζήτηση που δεν υπήρχε στο maven repository οπότε υπήρχαν προβλήματα συμβατότητας , τα υπόλοιπα dependancies βρίσκονται κανονικά στο pom.xml
-
-
-
-
-
-
-
-
-
-
-Ονωματεπώνυμο : Μάριος Ελληνίδης
-ΑΜ:4926
-Link: https://github.com/uoibrunch/CNNSearchEngine
-News Article Search Engine
-Περιγραφή 
-Στο project στοχεύω στην υλοποίηση ενός συστήματος αναζήτησης πληροφορίας από ειδησεογραφικά άρθρα του cnn με διάφορα πεδία όπως συγγραφέας , ημερομηνία δημοσίευσης , κατηγορία , τμήμα , επικεφαλίδα ,περιγραφή και keywords. Στόχος είναι να δημιουργήσω ένα σύστημα το οποίο θα δημιουγεί ενα αποτελεσματικό ευρετήριο για αυτά τα άρθρα και θα επιτρέπει την αναζήτησή και ανάκτηση με βάση την συνάφεια.
-
-
-
-Συλλογή εγγράφων
-Tα δεδομένα του project προέρχονται από μια συλλογή δεδομένων από άρθα ειδήσεων του cnn . Κάθε άρθρο στην συλλογή περιέχει τα παρακάτω πεδία:
- Author: Ο συγγραφέας του άρθρου , αυτο τα πεδίο μπορεί να είναι χρήσιμα για αναζητήσεις που επιγκετρώνονται σε άρθρα από συγκεκριμένο συγγραφέα 
-Category: Η κατηγορία του άθρου(π.χ. Πολιτική , Οικονομία , Αθλητικά). ,  αυτό το πεδίο επιγκεντρώνεται σε άθρα σε συγκεκριμένη κατηγορία , ωστόσο όπως και ο συγγραφέας φαίνεται να είναι λιγότερο σημαντικά
-Section: Η ενότητα στην οποία ανήκει το άρθρο (π.χ. Διεθνή, Εθνικά), φαίνεται λιγότερο σημαντικό.
-Ηeadline: Ο τίτλος του άθρου , αυτό το πεδίο είναι σημαντικό για την αναζήτησή , καθώς οι χρήστες συχνά θα αναζητούν άθρα με βάση τον τίτλο του. Η επικεφαλίδα μπορεί να περιέχει λέξεις κλειδιά που καθορίζουν το περιεχόμενο του άθρου.
-Description: Μια σύντομη περιγραφή του περιεχομένου του άθρου. Η περιγραφή είναι χρήσιμη για την αναζήτησή , καθώς συνήθως περιγράφει το περιεχόμενο του άθρου και μπορεί να περιλαμβάνει σημαντικές λέξεις κλειδιά.
-Article Text: Το πλήρες κείμενο του άθρου. Αυτό είναι το κύριο κείμενο του άρθρου και φυσικά θα χρησιμοποιηθεί για την αναζήτησή. Το κείμενο περιλαμβάνει όλες τις λέξεις του άρθου και αποτελεί την πιο σημαντική πηγή για αναζητήσεις βάσει περιεχομένου.
-Headline: Ο τίτλος του άρθρου. Αυτό το πεδίο είναι σημαντικό για αναζήτησή , καθώς οι χρήστες συχνά θα αναζητούν άθρα με βάση τον τίτλο τους. Η επικεφαλίδα μπορεί να περιέχει λέξεις κλειδιά που καθορίζουν το περιεχόμενο του άθρου.
-Description: Mια σύντομη περιγραφή του περιεχομένου του άθρου. Η περιγραφή είναι χρήσιμη για την αναζήτησή , καθώς συνήθως περιγράφει το περιεχόμενο του άθρου και μπορεί να περιλαμβάνει σημαντικές λέξεις κλειδιά.
-Keywords: Οι λέξεις κλειδιά που συνδέονται με το άρθρο , το οποίο είναι εξαιρετικά σημαντικό καθώς περιλαμβάνει τα βασικά θέματα του άρθρου και μπορεί να χρησιμοποιηθεί για να εντοπιστούν πιο ακριβή αποτελέσματα 
-Second Headline: Δευτερεύον τίτλος , μπορεί να χρησιμοποιηθεί κατα την αναζήτησή καθώς περιέχει επιπλέον πληροφορίες για το άθρο.
-
-Το author , category , section και second headline αρχικά μου φαίνονται λιγότερο σημαντικά ωστόσο θα μπορούσε να χρησιμοποιηθούν.
-Τα υπόλοιπα πεδία όπως  index και url δεν έχει νόημα να χρησιμοποιηθούν , όσο για το date published  , θα μπορούσα να φτιάξω μια μηχανή αναζήτησης με βάση την ημερομηνία σε java αλλά νομίζω είναι εκτός πλαισίων της άσκησης , ζητείται αναζήτηση με λέξεις κλειδιά
-
-
-Περιγραφή σχεδιασμού
-
-	Εισαγωγή: Στόχος είναι η κατασκευή μιας αποτελεσματικής μηχανής αναζήτησης για ειδησεογραφικά άρθρα αξιοποιώντας την βιβλιοθήκη Lucene. Το σύστημα θα υποστηρίζει:
-
-Αναζήτηση με λέξεις-κλειδιά σε συγκεκριμένα πεδία (π.χ., τίτλος, συγγραφέας, κείμενο άρθρου),
-Ιστορικό προηγούμενων ερωτημάτων,
-Διανυσματική αναζήτηση με χρήση προεκπαιδευμένων embeddings,
-Ευχάριστη παρουσίαση των αποτελεσμάτων με δυνατότητα φιλτραρίσματος και ταξινόμησης.
-
-	
-
-
-
-
-Ανάλυση Κειμένου και Κατασκευή Ευρετηρίου: Kατά την προετοιμασία των άρθρων για εισαγωγή στο ευρετήριο , θα εφαρμοστούν:
-Stemming (π.χ. με PorterStemFilter),
-Απαλοιφή stop words (με χρήση StopFilter και custom stopword set),
-Lowercasing (με LowerCaseFilter),
-Επέκταση συνωνύμων (π.χ. με SynonymGraphFilter, για να το κάνω αυτό βρήκα ένα αρχείο WordnetSynonyms.csv και με ένα python προγραμμα βρήκα μόνο τα συνώνημα για τις λέξεις που αναφέρονται στα άρθρα και το αποθηκεύω σε ένα άθρο FilteredSynonyms.csv, θα παραθέσω τον κώδικα της python αλλά οχι το WordnetSynonyms.csv καθώς είναι πολύ μεγάλο αρχείο ). Δουλεύει απλά και τα συνώνυμα σε αυτό το αρχείο δεν είναι παντα ικανοποιητικά.
-
-Οι παραπάνω ενέργειες θα υλοποιηθούν με custom analyzer για κάθε πεδίο όπου χρειάζεται , καθώς το κάθε πεδίο μπορεί να χρειάζεται διφορετική ανάλυση , π.χ. στον author πολύ πιθανόν να μην χρείαζεται stemming για να μην χαλάσει το όνομα.
-
-Μονάδα Εγγράφου
-Η βασική μονάδα είναι το άρθρο. Κάθε άρθρο θα καταχωρείται στο ευρετήριο ως ένα Document.
-Πεδία (Fields)
-Τα πεδία που θα χρησιμοποιηθούν στο Document είναι:
-Headline ,second Headline – Τίτλος άρθρου (TextField, με προεπεξεργασία ),
-Description - Περιγραφή (TextField, με προεπεξεργασία),
-Text – Πλήρες άρθρο (TextField, με προεπεξεργασία),
-Keywords – Λέξεις-κλειδιά (TextField, με προεπεξεργασία),
-author – Συγγραφέας (TextField, με προεπεξεργασία),
-Category, section-– Κατηγορία άρθρου (TextField, με προεπεξεργασίαο),
-Date – Ημερομηνία δημοσίευσης (TextField date-month-year)
-Για αλφαβητική υποστήριξη: Headline(SortedDocValuesField)
-Για διανυσματική αναζήτησή :
-embedding – Διανυσματική αναπαράσταση (KnnVectorField).
-
-
-
-	Aναζήτηση: Η αναζήτησή θα υποστηρίζει δύο βασικούς τύπους:
-Αναζήτησή με λέξεις-κλειδιά: Θα γίνεται μέσω το QueryParse ή MultiFieldQueryParser για τα κέιμενα , με δυνατότητα αναζήτησης σε πολλά πεδία ταυτόχρονα
-π.χ.
-Πεδίο: headline:text ή author:John
-API: QueryParser.parse(), IndexSearcher.search()
-2.  Αναζήτησή με διανύσματα:
-π.χ.
-Υπολογίζεται embedding του ερωτήματος μέσω DJL.
-Χρήση KnnVectoryQuery για εντοπισμό των πιο κοντινών άρθρων.
-API: KnnVectoryQuery, IndexSearcher.search()
-
-
-Iστορικό Ερωτημάτων:
-Τα τελευταία 20 ερωτήματα και τα 5 πρώτα άρθρα από κάθε αναζήτηση θα αποθηκεύονται τοπικά (σε αρχείο ή in-memory δομή) για:
-Βελτίωση μελλοντικών αναζητήσεων (π.χ. re-ranking),
-Ανάλυση προτιμήσεων χρήστη, ενισχύω τα άρθρα που αποτελούσαν αποτελέσματα παλιών ερωτήσεων
-
-Παρουσίαση Αποτελεσμάτων:
-Τα αποτελέσματα θα παρουσιάζονται:
-Ως ένα webpage με το τίτλο , το description και το υλικό του field που διάλεξε
-Τα αποτελέσματα θα εμφανίζονται σε σελίδες των 10 άρθρων η κάθε μια
-Με τονισμένες λέξεις-κλειδιά (highlighting) στο συγκεκριμένο field που διάλεξε.
-API π.χ.: Highlighter, QueryScore
-3. Δυνατότητα ταξινόμησης με βάση τον τίτλο:
-Αλφαβητικα χρησιμοποιώντας Sort και SortField 
-4. Για κάθε άρθρο θα υπάρχει επιλογή εμφάνισης ολόκληρου του άρθρου με όλα τα στοιχεία
-5. Το UI θα υλοποιηθεί με springboot αφού τρέξετε το πρόγραμμα απλα ανοίγουμε ένα browser στο localhost:8080
+1. **Clone the repository** locally and navigate to the project root directory.
+2. **Data Setup:** Ensure your dataset (`CNN_Articels_clean.csv`) is placed inside the root or `src/main/resources/` directory as required by the configuration.
+3. **Install Python Dependencies:** Before running the application, install the required machine learning libraries. Open your terminal in the project root and run:
+   ```bash
+   pip install -r requirements.txt
