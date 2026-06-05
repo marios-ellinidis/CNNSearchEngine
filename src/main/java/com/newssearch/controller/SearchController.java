@@ -204,7 +204,7 @@ public class SearchController {
             return "vector_results";
 
         } catch (Exception e) {
-            return "redirect:/?error=" + URLEncoder.encode("yoooo", StandardCharsets.UTF_8);
+            return "redirect:/?error=" + URLEncoder.encode("", StandardCharsets.UTF_8);
         }
     }
 
